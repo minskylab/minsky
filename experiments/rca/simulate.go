@@ -8,35 +8,39 @@ func (ds *DynamicalSystem) Tick() {
 
 // RunSimulation run simulation 'n' ticks.
 func (ds *DynamicalSystem) RunSimulation(n uint64, cn chan uint64) {
-	go func(cn chan uint64) {
+	ds.running = true
+	go func(cn chan uint64, running *bool) {
 		for i := uint64(0); i < n; i++ {
 			ds.Tick()
 			cn <- ds.ticks
 		}
 		close(cn)
-	}(cn)
+		*running = false
+	}(cn, &ds.running)
 }
 
 // RunInfiniteSimulation runs a infinite (but closable) simulation.
 func (ds *DynamicalSystem) RunInfiniteSimulation(cn chan uint64, finish chan struct{}) {
-	go func(f chan struct{}) {
-		<-finish
-		ds.sopped = true
-		close(cn)
-		close(finish)
-	}(finish)
+	ds.running = true
 
-	go func(cn chan uint64, stop *bool) {
+	go func(f chan struct{}, running *bool) {
+		<-finish
+		*running = false
+	}(finish, &ds.running)
+
+	go func(cn chan uint64, running *bool) {
 		cn <- ds.ticks
-		for !*stop {
+		for *running {
 			ds.Tick()
 			cn <- ds.ticks
 		}
-	}(cn, &ds.stopped)
+		close(cn)
+		close(finish)
+	}(cn, &ds.running)
 }
 
 // Observe execute a function on every tick from ticker channel.
-func (ds *DynamicalSystem) Observe(cn chan uint64, evol func(n uint64, s Space)) {
+func (ds *DynamicalSystem) Observe(cn chan uint64, evol RenderFunction) {
 	for n := range cn {
 		evol(n, ds.state)
 	}

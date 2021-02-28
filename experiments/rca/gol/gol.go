@@ -6,23 +6,24 @@ import (
 	"github.com/minskylab/rca"
 )
 
-// GoLCA implements a Game Of Life CA for DynamicalSystem model.
-type GoLCA struct {
-	board [][]byte
+// CA implements a Game Of Life CA for DynamicalSystem model.
+type CA struct {
+	board    [][]byte
+	cellSize int
 }
 
 // State implementes DS Space interface.
-func (ca *GoLCA) State(i ...uint64) uint64 {
+func (ca *CA) State(i ...uint64) uint64 {
 	return uint64(ca.board[i[0]][i[1]])
 }
 
 // Neighbours implementes DS Space interface.
-func (ca *GoLCA) Neighbours(i ...uint64) []uint64 {
+func (ca *CA) Neighbours(i ...uint64) []uint64 {
 	return []uint64{0, 0, 0, 0, 0, 0, 0, 0}
 }
 
 // Evolve implements a Evolvable interface.
-func (ca *GoLCA) Evolve(space rca.Space) rca.Space {
+func (ca *CA) Evolve(space rca.Space) rca.Space {
 	w := len(ca.board)
 	h := len(ca.board[0])
 	ca.board[rand.Intn(w)][rand.Intn(h)] = byte(rand.Intn(2))
@@ -31,7 +32,7 @@ func (ca *GoLCA) Evolve(space rca.Space) rca.Space {
 }
 
 // new creates a new GoL system.
-func new(w, h int, randomSeed int64) *GoLCA {
+func new(w, h int, randomSeed int64) *CA {
 	rand.Seed(randomSeed)
 
 	board := make([][]byte, h)
@@ -45,14 +46,14 @@ func new(w, h int, randomSeed int64) *GoLCA {
 		}
 	}
 
-	return &GoLCA{
-		board: board,
+	return &CA{
+		board:    board,
+		cellSize: 4,
 	}
-
 }
 
-// New returns a new GoL DS.
-func New(w, h int, randomSeed int64) *rca.DynamicalSystem {
+// NewGoLDynamicalSystem returns a new GoL DS.
+func NewGoLDynamicalSystem(w, h int, randomSeed int64) *rca.DynamicalSystem {
 	gol := new(w, h, randomSeed)
 	return rca.BulkDynamicalSystem(gol, gol)
 }

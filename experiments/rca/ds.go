@@ -17,8 +17,12 @@ type DynamicalSystem struct {
 	rule  Evolvable
 
 	ticks   uint64
-	stopped bool
+	running bool
 }
+
+// type Renderable interface {
+// 	RenderFrame(frame )
+// }
 
 // BulkDynamicalSystem bulkanize a new DS.
 func BulkDynamicalSystem(s Space, r Evolvable) *DynamicalSystem {
@@ -26,8 +30,13 @@ func BulkDynamicalSystem(s Space, r Evolvable) *DynamicalSystem {
 		state:   s,
 		rule:    r,
 		ticks:   0,
-		stopped: false,
+		running: false,
 	}
+}
+
+// State returns the state propierty of the DS structure.
+func (ds *DynamicalSystem) State() Space {
+	return ds.state
 }
 
 // type ComplexSystem interface {

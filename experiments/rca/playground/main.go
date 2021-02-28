@@ -2,6 +2,10 @@ package main
 
 import (
 	"fmt"
+	"image"
+	"image/jpeg"
+	"os"
+	"strconv"
 	"time"
 
 	"github.com/minskylab/rca"
@@ -9,21 +13,34 @@ import (
 )
 
 func main() {
-	ca := gol.New(10, 10, time.Now().Unix())
+	images := make(chan image.Image)
 
-	ticks := make(chan uint64)
-	done := make(chan struct{})
+	model := gol.NewGoLDynamicalSystem(128, 128, time.Now().Unix())
 
-	ca.RunInfiniteSimulation(ticks, done)
+	renderer := gol.NewImageRenderer(images)
 
-	go func(done chan struct{}) {
-		time.Sleep(10 * time.Millisecond)
-		done <- struct{}{}
-	}(done)
+	vm := rca.NewVM(model, renderer)
 
-	ca.Observe(ticks, func(n uint64, s rca.Space) {
-		// c := s.(*gol.GoLCA)
-		fmt.Println(n)
-	})
+	go func() {
+		i := 0
+		for image := range images {
+			fmt.Println(image.Bounds())
 
+			f, err := os.OpenFile("img_"+strconv.Itoa(i)+".jpeg", os.O_CREATE|os.O_RDWR, 0644)
+			if err != nil {
+				panic(err)
+			}
+
+			if err := jpeg.Encode(f, image, nil); err != nil {
+				panic(err)
+			}
+
+			f.Close()
+		}
+
+	}()
+
+	done := vm.Run(1 * time.Millisecond)
+
+	<-done
 }
