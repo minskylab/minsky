@@ -2,8 +2,8 @@ package rca
 
 // Space have the task to describe the lattice space of a any dynamical system.
 type Space interface {
-	State(i ...uint64) uint64
-	Neighbours(i ...uint64) []uint64
+	State(i ...int64) uint64
+	Neighbours(i ...int64) []uint64
 }
 
 // Evolvable saves how the space evolve over time.

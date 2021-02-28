@@ -17,7 +17,7 @@ func NewVM(model *DynamicalSystem, renderers ...Renderer) *VirtualMachine {
 }
 
 // Run ...
-func (vm *VirtualMachine) Run(dt time.Duration) chan struct{} {
+func (vm *VirtualMachine) Run(dt time.Duration) {
 	ticks := make(chan uint64)
 	done := make(chan struct{})
 
@@ -34,5 +34,4 @@ func (vm *VirtualMachine) Run(dt time.Duration) chan struct{} {
 		}
 	})
 
-	return done
 }

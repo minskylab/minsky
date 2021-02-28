@@ -13,20 +13,69 @@ type CA struct {
 }
 
 // State implementes DS Space interface.
-func (ca *CA) State(i ...uint64) uint64 {
+func (ca *CA) State(i ...int64) uint64 {
 	return uint64(ca.board[i[0]][i[1]])
 }
 
 // Neighbours implementes DS Space interface.
-func (ca *CA) Neighbours(i ...uint64) []uint64 {
-	return []uint64{0, 0, 0, 0, 0, 0, 0, 0}
+func (ca *CA) Neighbours(i ...int64) []uint64 {
+	x, y := i[0], i[1]
+
+	ns := []uint64{}
+
+	for dx := int64(-1); dx < 2; dx++ {
+		for dy := int64(-1); dy < 2; dy++ {
+			xi := x + dx
+			yi := y + dy
+
+			if xi == x && yi == y {
+				continue
+			}
+
+			if xi > int64(len(ca.board)-1) || xi < 0 {
+				continue
+			}
+
+			if yi > int64(len(ca.board[0])-1) || yi < 0 {
+				continue
+			}
+
+			ns = append(ns, uint64(ca.board[xi][yi]))
+		}
+	}
+
+	return ns
 }
 
 // Evolve implements a Evolvable interface.
 func (ca *CA) Evolve(space rca.Space) rca.Space {
-	w := len(ca.board)
-	h := len(ca.board[0])
-	ca.board[rand.Intn(w)][rand.Intn(h)] = byte(rand.Intn(2))
+	newBoard := make([][]byte, len(ca.board))
+	for i := range newBoard {
+		newBoard[i] = make([]byte, len(ca.board[0]))
+	}
+
+	for i := int64(0); i < int64(len(ca.board)); i++ {
+		for j := int64(0); j < int64(len(ca.board[i])); j++ {
+			total := 0
+			for _, t := range space.Neighbours(i, j) {
+				total += int(t)
+			}
+
+			if total == 2 {
+				newBoard[i][j] = ca.board[i][j]
+				continue
+			}
+
+			if total == 3 {
+				newBoard[i][j] = 1
+				continue
+			}
+
+			newBoard[i][j] = 0
+		}
+	}
+
+	ca.board = newBoard
 
 	return ca
 }
