@@ -20,7 +20,7 @@ func main() {
 
 	// renderer := gol.NewImageRenderer(images, width, height)
 
-	model, err := cyclic.NewRockPaperSissor(width, height, 2, time.Now().Unix(), images)
+	model, err := cyclic.NewRockPaperSissor(width, height, 2, 2, time.Now().Unix(), images)
 	if err != nil {
 		panic(err)
 	}
@@ -33,13 +33,16 @@ func main() {
 		buff := bytes.NewBuffer([]byte{})
 
 		for img := range images {
+			buff.Reset()
+
 			if err := jpeg.Encode(buff, img, &jpeg.Options{
 				Quality: 100,
 			}); err != nil {
 				panic(err)
 			}
+			// png.Encode(buff, img)
+
 			dataSource <- buff.Bytes()
-			buff.Reset()
 		}
 	}(dataSource)
 

@@ -81,7 +81,12 @@ func (prs *PaperRockSissor) Evolve(space rca.Space) rca.Space {
 				nextState = 0
 			}
 
-			if prs.countsMap[nextState] > prs.threshold+rand.Intn(prs.stocasticity) {
+			th := prs.threshold
+			if prs.stocasticity > 0 {
+				th += rand.Intn(prs.stocasticity)
+			}
+
+			if prs.countsMap[nextState] > th {
 				newBoard[i][j] = nextState
 			} else {
 				newBoard[i][j] = prs.board[i][j]
