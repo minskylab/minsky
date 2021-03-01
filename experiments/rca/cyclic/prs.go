@@ -24,14 +24,25 @@ func (prs *PaperRockSissor) State(i ...int64) uint64 {
 	return uint64(prs.board[i[0]][i[1]])
 }
 
+func abs(n int64) int64 {
+	if n < 0 {
+		return -n
+	}
+	return n
+}
+
 // Neighbours ...
 func (prs *PaperRockSissor) Neighbours(i ...int64) []uint64 {
 	x, y := i[0], i[1]
 
 	ns := []uint64{}
 
-	for dx := int64(-1); dx < 2; dx++ {
-		for dy := int64(-1); dy < 2; dy++ {
+	for dx := int64(-3); dx < 4; dx++ {
+		for dy := int64(-3); dy < 4; dy++ {
+			if abs(dx) < 2 || abs(dy) < 2 {
+				continue
+			}
+
 			xi := x + dx
 			yi := y + dy
 
@@ -62,6 +73,7 @@ func (prs *PaperRockSissor) counts(i, j int64) {
 	for _, n := range prs.Neighbours(i, j) {
 		prs.countsMap[byte(n)]++
 	}
+
 }
 
 // Evolve ...

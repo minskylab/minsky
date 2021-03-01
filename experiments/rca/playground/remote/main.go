@@ -14,13 +14,13 @@ import (
 func main() {
 	images := make(chan image.Image)
 
-	width, height := 512, 512
+	width, height := 600, 600
 
 	// model := gol.NewGoLDynamicalSystem(width, height, time.Now().Unix())
 
 	// renderer := gol.NewImageRenderer(images, width, height)
 
-	model, err := cyclic.NewRockPaperSissor(width, height, 2, 2, time.Now().Unix(), images)
+	model, err := cyclic.NewRockPaperSissor(width, height, 2, 8, 0, time.Now().Unix(), images)
 	if err != nil {
 		panic(err)
 	}
