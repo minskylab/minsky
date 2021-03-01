@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/minskylab/rca"
-	"github.com/minskylab/rca/gol"
+	"github.com/minskylab/rca/cyclic"
 	"github.com/minskylab/rca/remote"
 )
 
@@ -16,11 +16,16 @@ func main() {
 
 	width, height := 512, 512
 
-	model := gol.NewGoLDynamicalSystem(width, height, time.Now().Unix())
+	// model := gol.NewGoLDynamicalSystem(width, height, time.Now().Unix())
 
-	renderer := gol.NewImageRenderer(images, width, height)
+	// renderer := gol.NewImageRenderer(images, width, height)
 
-	vm := rca.NewVM(model, renderer)
+	model, err := cyclic.NewRockPaperSissor(width, height, 2, time.Now().Unix(), images)
+	if err != nil {
+		panic(err)
+	}
+
+	vm := rca.NewVM(rca.BulkDynamicalSystem(model, model), model)
 
 	dataSource := make(chan []byte)
 
@@ -28,8 +33,9 @@ func main() {
 		buff := bytes.NewBuffer([]byte{})
 
 		for img := range images {
-			// fmt.Printf("enconding %p\n", img)
-			if err := jpeg.Encode(buff, img, nil); err != nil {
+			if err := jpeg.Encode(buff, img, &jpeg.Options{
+				Quality: 100,
+			}); err != nil {
 				panic(err)
 			}
 			dataSource <- buff.Bytes()
