@@ -20,10 +20,6 @@ type DynamicalSystem struct {
 	running bool
 }
 
-// type Renderable interface {
-// 	RenderFrame(frame )
-// }
-
 // BulkDynamicalSystem bulkanize a new DS.
 func BulkDynamicalSystem(s Space, r Evolvable) *DynamicalSystem {
 	return &DynamicalSystem{

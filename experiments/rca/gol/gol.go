@@ -66,7 +66,7 @@ func (ca *CA) Evolve(space rca.Space) rca.Space {
 				continue
 			}
 
-			if total == 3 {
+			if total == 3 || total == 7 {
 				newBoard[i][j] = 1
 				continue
 			}

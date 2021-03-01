@@ -18,7 +18,7 @@ func main() {
 
 	model := gol.NewGoLDynamicalSystem(512, 512, time.Now().Unix())
 
-	renderer := gol.NewImageRenderer(images)
+	renderer := gol.NewImageRenderer(images, 512, 512)
 
 	vm := rca.NewVM(model, renderer)
 
@@ -35,17 +35,15 @@ func main() {
 		mu := &sync.Mutex{}
 
 		for img := range images {
-			go func(img image.Image, wg *sync.WaitGroup, mu sync.Locker) {
-				mu.Lock()
-				wg.Add(1)
+			mu.Lock()
+			wg.Add(1)
 
-				gImg := image.NewPaletted(img.Bounds(), palette.Plan9)
-				gImg.Pix = img.(*image.Gray).Pix
-				*imagesArr = append(*imagesArr, gImg)
+			gImg := image.NewPaletted(img.Bounds(), palette.Plan9)
+			gImg.Pix = img.(*image.Gray).Pix
+			*imagesArr = append(*imagesArr, gImg)
 
-				mu.Unlock()
-				wg.Done()
-			}(img, wg, mu)
+			mu.Unlock()
+			wg.Done()
 		}
 
 	}(wg, &imagesArr)
